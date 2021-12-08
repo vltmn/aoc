@@ -13,7 +13,7 @@ class InputReader(filename: String) {
 }
 
 object Main extends App {
-  val solution: Solution = new Day7()
+  val solution: Solution = new Day8()
   val reader = new InputReader(solution.getClass.getSimpleName.toLowerCase())
   val data = reader.read()
   val output = solution.solve(data)
