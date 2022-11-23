@@ -1,4 +1,4 @@
-package io.vltmn.aoc2021
+package io.vltmn.aoc
 package util
 
 import scala.collection.mutable
