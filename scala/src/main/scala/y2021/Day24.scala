@@ -2,118 +2,59 @@ package io.vltmn.aoc
 package y2021
 
 
-import y2021.Day24.{BinaryInstruction, InpInstruction, Instruction, State}
-
-import scala.annotation.tailrec
-import scala.collection.mutable
-import scala.util.Try
+import scala.util.matching.Regex
 
 class Day24 extends Solution {
-  def parseInput(input: String): Seq[Instruction] = input
-    .linesIterator
-    .map(l => Instruction(l))
-    .toSeq
-
-  def applyInstruction(instruction: Instruction, state: State, inputs: Seq[Int]): (State, Seq[Int]) = instruction match {
-    case InpInstruction(op) => (state.withRegisterValue(op, inputs.head), inputs.tail)
-    case BinaryInstruction(operator, opA, opB) =>
-      val bVal = opB.fold(identity, state.getRegister)
-      val aVal = state.getRegister(opA)
-      val newVal = operator match {
-        case "add" => aVal + bVal
-        case "mul" => aVal * bVal
-        case "div" => aVal / bVal
-        case "mod" => aVal % bVal
-        case "eql" => if (aVal == bVal) 1 else 0
-      }
-      (state.withRegisterValue(opA, newVal), inputs)
+  def findVars(input: String): Seq[(Int, Int, Int)] = {
+    val pattern: Regex = "inp w\nmul x 0\nadd x z\nmod x 26\ndiv z (-?\\d*)\nadd x (-?\\d*)\neql x w\neql x 0\nmul y 0\nadd y 25\nmul y x\nadd y 1\nmul z y\nmul y 0\nadd y w\nadd y (-?\\d*)\nmul y x\nadd z y".r
+    pattern.findAllMatchIn(input)
+      .toSeq
+      .map(m => (m.group(1).toInt, m.group(2).toInt, m.group(3).toInt))
   }
 
-  val cache = mutable.Map.empty[(Instruction, State, Option[Int]), State]
+  type RowVar = (Int, Int, Int)
 
-  @tailrec
-  final def runProgram2(program: Seq[Instruction], state: State, inputs: Seq[Int]): State = program match {
-    case instr :: rest =>
-      val inputCacheKey = instr match {
-        case InpInstruction(_) => Some(inputs.head)
-        case _ => None
-      }
-      val nextState = cache.getOrElseUpdate((instr, state, inputCacheKey), {
-        applyInstruction(instr, state, inputs)._1
-      })
-      val nextInputs = if(inputCacheKey.isDefined) inputs.tail else inputs
-      runProgram2(rest, nextState, nextInputs)
-    case _ => state
+  def genPairs(vars: Seq[RowVar], stack: Seq[RowVar], i: Int = 0): Seq[(RowVar, RowVar)] = vars match {
+    case (1, a, b) :: rest =>
+      genPairs(rest, stack.appended((i, a, b)), i + 1)
+    case (26, a, b) :: rest =>
+      val last = stack.last
+      genPairs(rest, stack.dropRight(1), i + 1).prepended((last, (i, a, b)))
+    case _ => Seq()
   }
 
-  @tailrec
-  final def runProgram(program: Seq[Instruction], state: State, inputs: Seq[Int]): State = program match {
-    case instr :: rest =>
-      val (nextState, nextInputs) = applyInstruction(instr, state, inputs)
-      runProgram(rest, nextState, nextInputs)
-    case _ => state
+  def findValWithpairs(pairs:  Seq[((Int, Int, Int), (Int, Int, Int))], mapOp: (((Int, Int), Int)) => ((Int, Int), (Int, Int))): Long = {
+    val idxVals = pairs
+      // map to number idxes, diff
+      .map(p => ((p._1._1, p._2._1), p._1._3 + p._2._2))
+      .map(mapOp)
+      .flatMap(v => Seq((v._1._1, v._2._1), (v._1._2, v._2._2)))
+      .toMap
+    Range(0, 14)
+      .map(idxVals.get)
+      .filter(_.isDefined)
+      .map(_.get)
+      .map(i => i.toString)
+      .fold("")((a, b) => a + b)
+      .toLong
   }
-
-  def findHighestModelNumber(program: Seq[Instruction]): Long = {
-    val defaultState = State(0, 0, 0, 0)
-    def isValid(value: Long): Boolean = {
-      val inputs = value.toString.map(_.asDigit)
-      val endState = runProgram2(program, defaultState, inputs)
-      endState.z == 0
-    }
-
-    @tailrec
-    def inner(value: Long): Long = {
-      val includes0s = value.toString.contains("0")
-      if(!includes0s && isValid(value))
-        value
-      else
-        inner(value - 1)
-    }
-    inner(99999999999999L)
-  }
-
   def part1(input: String): Long = {
-    val program = parseInput(input)
-    findHighestModelNumber(program)
+    val vars = findVars(input)
+    val pairs = genPairs(vars, Seq())
+    def mapOp(v: ((Int, Int), Int)): ((Int, Int), (Int, Int)) = (v._1, if (v._2 < 0) (9, 9 + v._2) else (9 - v._2, 9))
+    findValWithpairs(pairs, mapOp)
+  }
+
+  def part2(input: String): Long = {
+    val vars = findVars(input)
+    val pairs = genPairs(vars, Seq())
+    def mapOp(v: ((Int, Int), Int)): ((Int, Int), (Int, Int)) = (v._1, if (v._2 < 0) (1 - v._2, 1) else (1, 1 + v._2))
+    findValWithpairs(pairs, mapOp)
   }
 
   override def solve(input: String): String = {
     val p1 = part1(input)
-    s"Part1: $p1"
-  }
-}
-
-object Day24 {
-  trait Instruction
-
-  case class InpInstruction(op: Char) extends Instruction
-
-  case class BinaryInstruction(operator: String, opA: Char, opB: Either[Int, Char]) extends Instruction
-
-  object Instruction {
-    def apply(line: String): Instruction = {
-      val splitted = line.split(" ")
-      if (splitted.length == 2)
-        InpInstruction(splitted.last.toCharArray.head)
-      else
-        BinaryInstruction(splitted.head, splitted(1).head, Try(splitted.last.toInt).map(i => Left(i)).getOrElse(Right(splitted.last.head)))
-    }
-  }
-
-  case class State(x: Int, y: Int, z: Int, w: Int) {
-    def withRegisterValue(register: Char, value: Int): State = register match {
-      case 'x' => copy(x = value)
-      case 'y' => copy(y = value)
-      case 'z' => copy(z = value)
-      case 'w' => copy(w = value)
-    }
-
-    def getRegister(register: Char): Int = register match {
-      case 'x' => x
-      case 'y' => y
-      case 'z' => z
-      case 'w' => w
-    }
+    val p2 = part2(input)
+    s"Part1: $p1\nPart2: $p2"
   }
 }
