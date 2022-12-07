@@ -1,13 +1,11 @@
 package io.vltmn.aoc
 package util
 
+import io.vltmn.aoc.util.GraphTypes.Graph
+
 import scala.collection.mutable
 
 object Dijkstra {
-  case class Path[Pos](to: Pos, distance: Int)
-
-  type Graph[Pos] = Map[Pos, Set[Path[Pos]]]
-
   def shortestPath[Pos](graph: Graph[Pos], source: Pos, target: Pos): Int = {
     val dist = collection.mutable.Map.from(graph
       .map(e => if (e._1 == source) (source, 0) else (e._1, Int.MaxValue)))
@@ -21,11 +19,11 @@ object Dijkstra {
     while (q.nonEmpty) {
       val (u, _) = q.dequeue
       for (v <- graph(u)) {
-        val newDist = dist(u) + v.distance
-        if (newDist < dist(v.to)) {
-          dist.update(v.to, newDist)
-          prev.update(v.to, u)
-          q.enqueue((v.to, newDist))
+        val newDist = dist(u) + v._2
+        if (newDist < dist(v._1)) {
+          dist.update(v._1, newDist)
+          prev.update(v._1, u)
+          q.enqueue((v._1, newDist))
         }
       }
     }
