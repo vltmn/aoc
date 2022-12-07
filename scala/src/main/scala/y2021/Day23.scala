@@ -3,7 +3,6 @@ package y2021
 
 import y2021.Day23.{Position, SpaceContent, State}
 import util.Dijkstra
-import util.Dijkstra.Path
 
 class Day23 extends Solution {
   def parseInput(input: String): State = {
@@ -28,6 +27,8 @@ class Day23 extends Solution {
       .toMap
     State(map)
   }
+
+  case class Path[A](pos: A, distance: Int)
 
   def evalForGraph(startState: State): Map[State, Set[Path[State]]] = {
 
@@ -79,7 +80,8 @@ class Day23 extends Solution {
     val startState = parseInput(input)
     val target = getTargetState(startState)
     val graph = evalForGraph(startState)
-    val cost = Dijkstra.shortestPath(graph, startState, target)
+    val mappedGraph = graph.map(e => (e._1, e._2.map(e => (e.pos, e.distance))))
+    val cost = Dijkstra.shortestPath(mappedGraph, startState, target)
     cost
   }
 
@@ -89,7 +91,8 @@ class Day23 extends Solution {
     val startState = parseInput(p2Input.mkString("\n"))
     val target = getTargetState(startState)
     val graph = evalForGraph(startState)
-    val cost = Dijkstra.shortestPath(graph, startState, target)
+    val mappedGraph = graph.map(e => (e._1, e._2.map(e => (e.pos, e.distance))))
+    val cost = Dijkstra.shortestPath(mappedGraph, startState, target)
     cost
   }
 
