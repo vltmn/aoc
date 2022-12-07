@@ -21,16 +21,8 @@ class Day7 extends Solution {
         }
         case _ => Seq()
       }
-
       inner(rows, Seq())
-        .groupBy(e => e._1)
-        .view.mapValues(v => v.map(e => e._2)
-        .foldRight(Seq[File]())((curr, acc) => curr match {
-          case Some(f) => acc.appended(f)
-          case _ => acc
-        })
-      )
-        .toMap
+        .groupMapReduce(_._1)(e => Seq(e._2).flatten)(_.appendedAll(_))
     }
 
     val d = input.linesIterator.toSeq
@@ -42,7 +34,7 @@ class Day7 extends Solution {
     val unusedNeeded = 30000000
     val currentUsed = dirSizes(Seq())
     val needsToBeDeleted = unusedNeeded - (spaceAvailable - currentUsed)
-    val p2 = dirSizes.filter(e => e._2 >= needsToBeDeleted).values.min
+    val p2 = dirSizes.filter(_._2 >= needsToBeDeleted).values.min
     s"Part1: $p1\nPart2: $p2"
   }
 }
