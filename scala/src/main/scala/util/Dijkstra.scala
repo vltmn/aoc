@@ -1,33 +1,42 @@
 package io.vltmn.aoc
 package util
 
-import io.vltmn.aoc.util.GraphTypes.Graph
+import util.GraphTypes.Graph
 
-import scala.collection.mutable
+import scala.annotation.tailrec
+import scala.collection.SortedMap
 
 object Dijkstra {
-  def shortestPath[Pos](graph: Graph[Pos], source: Pos, target: Pos): Int = {
-    val dist = collection.mutable.Map.from(graph
-      .map(e => if (e._1 == source) (source, 0) else (e._1, Int.MaxValue)))
-    val prev = collection.mutable.HashMap.empty[Pos, Pos]
-    val ordering: Ordering[(Pos, Int)] = Ordering.by(_._2)
-    val q: mutable.PriorityQueue[(Pos, Int)] = collection.mutable.PriorityQueue.from(
-      graph.keySet
-        .map(k => (k, dist(k)))
-    )(ordering.reverse)
+  private type QueueType[Pos] = SortedMap[Int, Set[Pos]]
+  def shortestPath[Pos](graph: Graph[Pos], source: Pos, target: Pos): Option[Int] = {
 
-    while (q.nonEmpty) {
-      val (u, _) = q.dequeue
-      for (v <- graph(u)) {
-        val newDist = dist(u) + v._2
-        if (newDist < dist(v._1)) {
-          dist.update(v._1, newDist)
-          prev.update(v._1, u)
-          q.enqueue((v._1, newDist))
-        }
-      }
+    @tailrec
+    def inner(queue: QueueType[Pos], dists: Map[Pos, Int], prev: Map[Pos, Pos]): Option[Int] = {
+      if (queue.isEmpty) return dists.get(target)
+        .flatMap(i => if (i == Int.MaxValue) None else Some(i))
+      val item = queue.head._2.head
+      val newItems = graph(item)
+        .map(e => (e, dists(item) + e._2))
+        .filter(e => e._2 < dists(e._1._1))
+      val newDist = dists ++ newItems.map(e => (e._1._1, e._2))
+      val newPrev = prev ++ newItems.map(e => (e._1._1, item))
+      val poppedQ = queue.map(e => (e._1, e._2.diff(Set(item))))
+        .filter(e => e._2.nonEmpty)
+      val newQ = newItems.map(e => (e._2, e._1._1))
+        .foldLeft(poppedQ)((acc, curr) =>
+          acc.concat(Map((curr._1, acc.getOrElse(curr._1, Set[Pos]()).incl(curr._2))))
+        )
+      inner(newQ, newDist, newPrev)
     }
-    dist(target)
+    val dists = graph.keySet
+      .map(k => (k, if (k == source) 0 else Int.MaxValue))
+      .toMap
+    val startQueue = SortedMap from dists
+      .map(_.swap)
+      .groupMap(_._1)(_._2)
+      .map(e => (e._1, e._2.toSet))
+
+    inner(startQueue, dists, Map())
   }
 
 }

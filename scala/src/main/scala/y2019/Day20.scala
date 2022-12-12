@@ -38,7 +38,7 @@ class Day20 extends Solution {
     val graphWithTeleports = graph.merge(teleports)
       //.flatMap(e => Seq(e(0)))
     // get shortest path from start to end
-    val p1 = Dijkstra.shortestPath(graphWithTeleports, start, end)
+    val p1 = Dijkstra.shortestPath(graphWithTeleports, start, end).get
 
     s"Part1: $p1"
   }

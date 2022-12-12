@@ -81,7 +81,7 @@ class Day23 extends Solution {
     val target = getTargetState(startState)
     val graph = evalForGraph(startState)
     val mappedGraph = graph.map(e => (e._1, e._2.map(e => (e.pos, e.distance))))
-    val cost = Dijkstra.shortestPath(mappedGraph, startState, target)
+    val cost = Dijkstra.shortestPath(mappedGraph, startState, target).get
     cost
   }
 
@@ -92,7 +92,7 @@ class Day23 extends Solution {
     val target = getTargetState(startState)
     val graph = evalForGraph(startState)
     val mappedGraph = graph.map(e => (e._1, e._2.map(e => (e.pos, e.distance))))
-    val cost = Dijkstra.shortestPath(mappedGraph, startState, target)
+    val cost = Dijkstra.shortestPath(mappedGraph, startState, target).get
     cost
   }
 
