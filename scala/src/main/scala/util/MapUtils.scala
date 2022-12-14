@@ -36,6 +36,15 @@ object MapUtils {
       0
     else
       1
+
+    def drawLine(c2: Coord): Set[Coord] = {
+      val xMin = c1._1.min(c2._1)
+      val yMin = c1._2.min(c2._2)
+      val xMax = c1._1.max(c2._1)
+      val yMax = c1._2.max(c2._2)
+      (xMin to xMax).flatMap(x => (yMin to yMax).map(y => (x, y)))
+        .toSet
+    }
   }
 
   implicit class MatrixMapUtils[A](val m: Seq[Seq[A]]) {
