@@ -3,8 +3,8 @@ package y2022
 
 import util.MapUtils.{Coord, CoordUtils}
 
-class Day15 extends Solution {
 
+class Day15 extends Solution {
   private implicit class RangeUtils(r: Range) {
     def merge(o: Range): Range = r.start.min(o.start) to r.end.max(o.end)
     def overlaps(o: Range): Boolean = if (o.start < r.start) r.start - o.end <= 1 else o.start - r.end <= 1
@@ -25,8 +25,7 @@ class Day15 extends Solution {
 
   override def solve(input: String): String = {
     val pattern = "Sensor at x=(-?\\d+), y=(-?\\d+): closest beacon is at x=(-?\\d+), y=(-?\\d+)".r
-    val test = false
-    val parsed = input.linesIterator
+    val parsed: Seq[(Coord, Coord)] = input.linesIterator
       .map(pattern.findFirstMatchIn(_).get)
       .map(m => (1 to 4).map(m.group).map(_.toInt))
       .map(s => ((s(0), s(1)), (s(2), s(3))))
@@ -35,7 +34,7 @@ class Day15 extends Solution {
     val sensorBeaconDistances = parsed
       .map(e => (e._1, e._1.manhattanDistance(e._2)))
 
-    val beacons = parsed.map(_._2)
+    val beacons = parsed.map(_._2).toSet
     val rowToSearch = 2000000
     val ranges = makeRanges(sensorBeaconDistances, rowToSearch)
     val beaconsOnRow = beacons.count(_._2 == rowToSearch)

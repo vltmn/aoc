@@ -29,7 +29,7 @@ class Day13Test extends AnyFunSuite {
       .split("\n\n")
       .map(_.split("\n"))
       .map(_
-        .map(d.parse2))
+        .map(d.parse))
     val str = parsed.map(p => p.map(_.toString).mkString("\n"))
       .mkString("\n\n")
 
@@ -43,7 +43,7 @@ class Day13Test extends AnyFunSuite {
       .split("\n\n")
       .map(_.split("\n"))
       .map(_
-        .map(d.parse2))
+        .map(d.parse))
     val str = parsed.map(p => p.map(_.toString).mkString("\n"))
       .mkString("\n\n")
 
