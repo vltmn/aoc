@@ -45,6 +45,12 @@ object MapUtils {
       (xMin to xMax).flatMap(x => (yMin to yMax).map(y => (x, y)))
         .toSet
     }
+
+    def manhattanDistance(c2: Coord): Int = {
+      val x = Math.abs(c1._1 - c2._1)
+      val y = Math.abs(c1._2 - c2._2)
+      x + y
+    }
   }
 
   implicit class MatrixMapUtils[A](val m: Seq[Seq[A]]) {
