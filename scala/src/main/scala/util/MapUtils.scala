@@ -51,6 +51,10 @@ object MapUtils {
       val y = Math.abs(c1._2 - c2._2)
       x + y
     }
+
+    def + (c2: Coord): Coord = {
+      (c1._1 + c2._1, c1._2 + c2._2)
+    }
   }
 
   implicit class MatrixMapUtils[A](val m: Seq[Seq[A]]) {
