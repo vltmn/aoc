@@ -37,7 +37,6 @@ class Day20 extends Solution {
     .sum
 
   override def solve(input: String): String = {
-    val inp2 = "1\n2\n-3\n3\n-2\n0\n4"
     val parsed = input.split("\n").map(_.toLong)
       .toSeq
     val groveCoords = Seq(1000, 2000, 3000)
