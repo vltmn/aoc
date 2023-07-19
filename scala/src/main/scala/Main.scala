@@ -7,7 +7,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{Duration, SECONDS}
 
 object Main extends App {
-  val solution: Solution = new y2022.Day24()
+  val solution: Solution = new y2022.Day25()
   val day: Int = solution.getClass.getSimpleName.substring(3).toInt
   val year = solution.getClass.getPackageName.split("\\.").last.substring(1).toInt
   val reader = new InputReader(year, day)
