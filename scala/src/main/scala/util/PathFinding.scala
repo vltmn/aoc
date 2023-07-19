@@ -1,6 +1,8 @@
 package io.vltmn.aoc
 package util
 
+import io.vltmn.aoc.util.GraphTypes.Graph
+
 import scala.annotation.tailrec
 
 object PathFinding {
@@ -34,7 +36,10 @@ object PathFinding {
   def bfs[Pos](start: Pos, successors: Pos => Set[Pos], isGoal: Pos => Boolean): Option[Seq[Pos]] =
     genLoop(start, successors, isGoal, (toAdd: Set[Pos], q: Seq[Pos]) => q.appendedAll(toAdd))()
 
-
+  def bfs[Pos](start: Pos, graph: Graph[Pos], isGoal: Pos => Boolean): Option[Seq[Pos]] =
+    bfs(start, toSuccessors(graph), isGoal)
+  private def toSuccessors[Pos](g: Graph[Pos]): Pos => Set[Pos] = g.view
+    .mapValues(v => v.map(_._1)).toMap
   def dfsLength[Pos](
                       start: Pos,
                       successors: Pos => Set[Pos],

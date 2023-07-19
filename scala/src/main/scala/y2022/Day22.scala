@@ -1,18 +1,13 @@
 package io.vltmn.aoc
 package y2022
 
+import io.vltmn.aoc.util.Position
+
 import scala.annotation.tailrec
 import scala.collection.SortedMap
 import scala.collection.immutable.TreeMap
 
 class Day22 extends Solution {
-  case class Position(x: Int, y: Int) {
-    def +(other: Position): Position = Position(x + other.x, y + other.y)
-  }
-
-  object Position {
-    def apply(pair: (Int, Int)): Position = new Position(pair._1, pair._2)
-  }
 
   trait Direction {
     def left(): Direction

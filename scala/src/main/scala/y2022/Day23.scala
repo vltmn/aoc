@@ -1,17 +1,13 @@
 package io.vltmn.aoc
 package y2022
 
+import io.vltmn.aoc.util.Position
+
 import scala.annotation.tailrec
 import scala.collection.SortedSet
 
 class Day23 extends Solution {
   type Num = Int
-
-  case class Position(x: Num, y: Num) extends Comparable[Position] {
-    override def compareTo(o: Position): Num = Ordering.Tuple2[Num, Num].compare((y, x), (o.y, o.x))
-
-    def +(other: Position): Position = Position(x + other.x, y + other.y)
-  }
 
   trait BoardCell
 
