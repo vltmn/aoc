@@ -3,7 +3,7 @@ import java.nio.charset.Charset
 import java.nio.file.Paths
 
 fun main() {
-    val solution: Solution = y2023.Day4()
+    val solution: Solution = y2023.Day5()
     val day = solution.javaClass.simpleName.substring(3).toInt()
     val year = solution.javaClass.`package`.name
         .split("\\.").last().substring(1)
